@@ -7,18 +7,43 @@ import {
   CardMedia,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import classNames from "classnames";
+import React, { createRef, useEffect, useState } from "react";
 
 import useStyles from "./styles.js";
 
 const NewsCard = ({
   article: { description, publishedAt, source, title, url, urlToImage },
   i,
+  activeArticle,
 }) => {
   const classes = useStyles();
+  const [elRefs, setElRefs] = useState([]);
+  const scrollToRef = (ref) => window.scroll(0, ref.current.offsetTop - 50); // this will make sure that to get at the top of the card and also to bring it up above
+
+  useEffect(() => {
+    setElRefs(
+      (refs) =>
+        Array(20)
+          .fill()
+          .map((_, j) => refs[j] || createRef()) // _ means as we are not using the first argument here and size is 20 as the number of cards shown will be 20
+    );
+  }, []);
+
+  useEffect(() => {
+    if (i === activeArticle && elRefs[activeArticle]) {
+      scrollToRef(elRefs[activeArticle]);
+    }
+  }, [i, activeArticle, elRefs]);
 
   return (
-    <Card className={classes.card}>
+    <Card
+      ref={elRefs[i]}
+      className={classNames(
+        classes.card,
+        activeArticle === i ? classes.activeCard : null
+      )}
+    >
       <CardActionArea href={url} target="_blank">
         <CardMedia
           className={classes.media}
