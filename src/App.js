@@ -12,7 +12,7 @@ const App = () => {
 
   useEffect(() => {
     alanBtn({
-      key: "5c284b31f31d9328fc2ca2b63eedc90f2e956eca572e1d8b807a3e2338fdd0dc/stage",
+      key: process.env.REACT_APP_ALAN_BUTTON_API_KEY,
       onCommand: ({ command, articles, number }) => {
         if (command === "newHeadlines") {
           setNewsArticles(articles);
@@ -20,29 +20,19 @@ const App = () => {
         } else if (command === "highlight") {
           setActiveArticle((prevActiveArticle) => prevActiveArticle + 1);
         } else if (command === "open") {
-          console.log(number.value);
-          console.log(articles);
+          const parsedNumber =
+            number.length > 2
+              ? wordsToNumbers(number, { fuzzy: true })
+              : number;
 
-          // const parsedNumber =
-          //   number.length > 2
-          //     ? wordsToNumbers(number, { fuzzy: true })
-          //     : number;
+          const article = articles[parsedNumber];
 
-          // const article = articles[parsedNumber - 1];
-
-          // console.log(parsedNumber);
-          // console.log(article);
-
-          const articleNum = number.value;
-
-          window.open(articles[number].url, "_blank"); // this will open the link in a new tab
-
-          // if (parsedNumber > 20) {
-          //   alanBtn().playText("Please try that again!");
-          // } else if (article) {
-          //   window.open(article.url, "_blank"); // this will open the link in a new tab
-          //   alanBtn().playText("Opening....");
-          // }
+          if (article) {
+            window.open(article.url, "_blank"); // this will open the link in a new tab
+            alanBtn().playCommand("Opening....");
+          } else if (parsedNumber > 20) {
+            alanBtn().playText("Please try that again!");
+          }
         }
       },
     });
